@@ -1,0 +1,5 @@
+- **App Preview (under 90 sec):**
+   - [Flutter Version](https://youtu.be/KZztuUeV0zg)
+   - Kotlin Version: Coming Soon
+- **Apk  Link**
+   - [All apk will be available here](https://drive.google.com/drive/folders/1zMQEEoSdzMC-n8_nefB985P0WdgaJXTk?usp=sharing)
