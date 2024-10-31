@@ -7,10 +7,10 @@ import 'package:search_presentation/src/presentation_logic/model/axis_data_model
 import 'package:search_presentation/src/presentation_logic/model/time_period_model.dart';
 
 //@formatter:off
-class SearchScreen2 extends StatelessWidget {
+class SearchScreen extends StatelessWidget {
    final controller=PresentationFactory.createController();
 
-   SearchScreen2({super.key}){
+   SearchScreen({super.key}){
      //TODO:Not a good practise to read data to UI element,refactor later
      controller.read();
    }
@@ -18,7 +18,7 @@ class SearchScreen2 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
   return  Scaffold(
-        appBar: CustomTopBar(
+        appBar: AppBar(
           title: Text("Search",style: TextStyle(fontWeight: FontWeight.w500,fontSize: 16)),
             leading: IconButton(icon: Icon(Icons.arrow_back),onPressed: () {}),
         ),
@@ -66,24 +66,6 @@ class SearchScreen2 extends StatelessWidget {
   }
 }
 
-class SearchScreen extends StatefulWidget {
-  @override
-  _SearchScreenState createState() => _SearchScreenState();
-}
-
-class _SearchScreenState extends State<SearchScreen> {
-  String selectedPeriod = '1W';
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Placeholder();
-  }
-}
 
 class _SpendingNRecentProduct extends StatelessWidget {
   final List<Product> products;

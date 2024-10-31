@@ -6,9 +6,9 @@ import '../presentation_logic/factory/factory.dart';
 
 
 //@formatter:off
-class WalletScreen2 extends StatelessWidget {
+class WalletScreen extends StatelessWidget {
   final controller=PresentationFactory.createController();
-  WalletScreen2(){
+  WalletScreen(){
     //TODO:Not good idea to fetch data within UI, refactor later
     controller.read();
   }
