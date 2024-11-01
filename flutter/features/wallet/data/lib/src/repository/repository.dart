@@ -26,15 +26,9 @@ class RepositoryImpl implements Repository {
   }
 }
 
-final _demoBreakDownData=[
-  BreakdownItemData(label: "Food & Drinks", percentage: "45%"),
-  BreakdownItemData(label: "Dresses", percentage: "25%"),
-  BreakdownItemData(label: "Transport", percentage: "20%"),
-  BreakdownItemData(label: "Others", percentage: "10%")];
-
 final _spendDataJson = '''
   {
-    "period": "this_month",
+    "period": "This month",
     "currency": "\$",
     "spend": {
         "data": [
@@ -49,3 +43,9 @@ final _spendDataJson = '''
     }
   }
   ''';
+
+final _demoBreakDownData=[
+  BreakdownItemData(label: "Food & Drinks", percentage: "45%"),
+  BreakdownItemData(label: "Dresses", percentage: "25%"),
+  BreakdownItemData(label: "Transport", percentage: "20%"),
+  BreakdownItemData(label: "Others", percentage: "10%")];

@@ -469,15 +469,8 @@ class _LoanItem extends StatelessWidget {
 class _LoanItemLayoutStrategy extends StatelessWidget {
   final Widget price, model, date, rating, image, ratingBar;
 
-  const _LoanItemLayoutStrategy({
-    super.key,
-    required this.price,
-    required this.model,
-    required this.date,
-    required this.rating,
-    required this.image,
-    required this.ratingBar,
-  });
+  const _LoanItemLayoutStrategy({required this.price, required this.model,required this.date,
+    required this.rating, required this.image, required this.ratingBar});
 
   @override
   Widget build(BuildContext context) {

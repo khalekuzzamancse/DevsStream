@@ -127,7 +127,7 @@ class _NavGraph {
 
   static GoRoute _searchScreen()=> GoRoute(
       path: PATH_SEARCH,
-      builder: (BuildContext context, GoRouterState state) =>  SearchScreen2(),
+      builder: (BuildContext context, GoRouterState state) =>  SearchScreen(),
       routes:noSubRoute
   );
   static GoRoute _homeScreen()=> GoRoute(
@@ -137,7 +137,7 @@ class _NavGraph {
   );
   static GoRoute _walletScreen()=> GoRoute(
       path: PATH_WALLET,
-      builder: (BuildContext context, GoRouterState state) => WalletScreen2(),
+      builder: (BuildContext context, GoRouterState state) => WalletScreen(),
       routes:noSubRoute
   );
 

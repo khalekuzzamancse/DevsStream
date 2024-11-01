@@ -15,7 +15,7 @@ class WalletScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomTopBar(
+      appBar: AppBar(
         leading:IconButton(icon: Icon(Icons.arrow_back), onPressed: () {}) ,
         title: Text('Wallet',style: TextStyle(fontWeight: FontWeight.w500,fontSize: 16)),
         actions:  [IconButton(icon: Icon(Icons.account_circle), onPressed: () {}).modifier(Modifier().padding(right: 16))],
