@@ -25,8 +25,8 @@ class AsyncImage {
 
   Widget build() {
     Widget rootLayout =
-        Image.network(_link, fit: BoxFit.cover) //for keep image ratio same
-            .modifier(_modifier);
+    Image.network(_link, fit: BoxFit.cover) //for keep image ratio same
+        .modifier(_modifier);
     return rootLayout;
   }
 }
@@ -447,10 +447,10 @@ class FlowRowBuilder {
 
   FlowRowBuilder(
       {double horizontalSpace = 0.0,
-      double verticalSpace = 0.0,
-      Modifier? modifier,
-      WrapAlignment alignment = flutter.WrapAlignment.center,
-         this.crossAxisAlignment=flutter.WrapCrossAlignment.center,
+        double verticalSpace = 0.0,
+        Modifier? modifier,
+        WrapAlignment alignment = flutter.WrapAlignment.center,
+        this.crossAxisAlignment=flutter.WrapCrossAlignment.center,
       })
       : _modifier = modifier,
         _verticalSpacing = verticalSpace,
@@ -587,30 +587,30 @@ class RowBuilder {
   CrossAxisAlignment _crossAxisAlignment = CrossAxisAlignment.center;
   Modifier? _modifier; // Field to store the modifier for the row
   Arrangement _arrangement=Arrangement.Start;
-   MainAxisSize _mainAxisSize = flutter.MainAxisSize.min;
+  MainAxisSize _mainAxisSize = flutter.MainAxisSize.min;
   TextDirection? _textDirection;
   VerticalDirection _verticalDirection = VerticalDirection.down;
   TextBaseline? _textBaseline;
 
   RowBuilder(
       {MainAxisAlignment horizontalAlignment = MainAxisAlignment.center,
-      CrossAxisAlignment verticalAlignment = CrossAxisAlignment.center,
-      Modifier? modifier,
-      Sizes size = Sizes.wrapContentWidth,
+        CrossAxisAlignment verticalAlignment = CrossAxisAlignment.center,
+        Modifier? modifier,
+        Sizes size = Sizes.wrapContentWidth,
         Arrangement  arrangement= Arrangement.Start,
       }): _mainAxisAlignment = horizontalAlignment,
         _crossAxisAlignment = verticalAlignment,
         _modifier = modifier,
         _arrangement=arrangement
   {
-     if(size==Sizes.wrapContentWidth)
-       _mainAxisSize=flutter.MainAxisSize.min;
-     if(size==Sizes.fillMaxWidth)
-       _mainAxisSize=flutter.MainAxisSize.max;
+    if(size==Sizes.wrapContentWidth)
+      _mainAxisSize=flutter.MainAxisSize.min;
+    if(size==Sizes.fillMaxWidth)
+      _mainAxisSize=flutter.MainAxisSize.max;
 
 
 
-}
+  }
 
   RowBuilder append({required Widget child, Modifier? modifier = null}) {
     Widget modifiedChild = modifier != null ? child.modifier(modifier) : child;
@@ -932,3 +932,415 @@ class EmptyWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) => flutter.SizedBox.shrink();
 }
+
+/**
+ * - Height is recommend to provide to avoid Render issue because of unbound height, however if the children has
+ * bounded height/width constraint then this can be null
+ * - [gap] is the vertical gap between header and children
+ * # Caution
+ * - It meant to use when you have small amount of item
+ * - It uses Row to render the children, which is helpful when you have less number  of element,
+ * - Sometimes List.Builder() can causes crash so these can be used as instead
+ * - [showIndicator] small circles that denote the numbers of items
+ *
+ * # Example
+ * ```dart
+ * NestedHorizontalScroller(
+    height: 300,
+    header:  Row(children: [
+    Text("Active Loans", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+    Spacer(),
+    Text("See all ", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400))]),
+
+    children: loanItems.map((item)=>
+    _LoanItem(data: LoanModel(model: item.model, imageLink:item.imageLink,
+    price:item.price, date: item.date,
+    rating: item.rating, ratingMax: item.ratingMax))).toList(),
+
+    );
+ *
+ *   ```
+ *   #Example: Bar chart
+ *   ```dart
+ *   NestedHorizontalScroller(
+ *   childVerticalAlignment: CrossAxisAlignment.end,
+ *   children:  costs.map((cost) {
+ *  return _Bar(cost: cost, maxCost: maxCost, barColor: const Color(0xFF7F00FF), currencySymbol: currencySymbol)
+ *  .modifier(Modifier().padding(left:4,right: 4));
+ *  }).toList(),
+ *  );
+ *
+ *   ```
+ */
+class NestedHorizontalScroller extends StatelessWidget {
+  final Widget? header; final List<Widget> children;
+  final double? height, gap;
+  final  bool? showIndicator;
+  final flutter.CrossAxisAlignment? childVerticalAlignment;
+
+  const NestedHorizontalScroller({super.key,  this.header, required this.children, this.height, this.gap=8.0, this.showIndicator,
+    this.childVerticalAlignment});
+
+  @override
+  Widget build(BuildContext context) {
+    return   Container(
+      height: height,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if(header!=null) header!,
+          if(header!=null) SizedBox(height: gap),
+          SingleChildScrollView(
+            scrollDirection:  Axis.horizontal,
+            physics:  AlwaysScrollableScrollPhysics(),
+            child:Row(children:children,crossAxisAlignment:childVerticalAlignment??flutter.CrossAxisAlignment.center),
+          ),
+          if(showIndicator??false)
+            SizedBox(height: 8),
+          if(showIndicator??false)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(children.length, (index) =>
+                  CircleAvatar(radius: 3, backgroundColor: Colors.black)
+                      .modifier(Modifier().padding(left: 8,right: 8)),
+              ),
+            )
+        ],
+
+      ),
+    );
+  }
+}
+
+
+/**
+ * # Caution
+ * Since this is a nested scrollable component, it's important to provide a finite height constraint,
+ * such as `height` or `maxHeight`, to avoid potential rendering issues.
+ *
+ * # Example
+ * ```dart
+ * return NestedVerticalScroller(
+ *   listModifier: Modifier()
+ *     .shadow(height: 300, backgroundColor: Colors.grey[200]!, radius: 12),
+ *   maxWidth: 500,
+ *   maxHeight: 300, // Sets the maximum height for the scroller
+ *   children: products.map((product) => ProductWidget(product: product)).toList(),
+ *   header: Text(
+ *     "Recent Products",
+ *     style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold)
+ *   ).modifier(Modifier().align(Alignment.centerLeft)),
+ *   childGap: 16,
+ * );
+ * ```
+ */
+class NestedVerticalScroller extends StatelessWidget {
+  final Widget? header;
+  final List<Widget> children;
+  final double? width;
+  final double? headerGap;
+  final double childGap;
+  final double maxHeight;
+  final double minHeight;
+  final double maxWidth;
+  final double minWidth;
+  final Modifier? listModifier;
+
+  ///For document refer the class scope instead of constructor
+  const NestedVerticalScroller({
+    super.key,
+    this.header,
+    required this.children,
+    this.width,
+    this.childGap = 8.0,
+    this.maxHeight = double.infinity,
+    this.minHeight = 0.0,
+    this.maxWidth = double.infinity,
+    this.minWidth = 0.0, this.headerGap=8.0, this.listModifier,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      constraints: BoxConstraints(
+        maxHeight: maxHeight,
+        minHeight: minHeight,
+        maxWidth: maxWidth,
+        minWidth: minWidth,
+      ),
+      width: width,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (header != null) header!,
+          if (header != null) SizedBox(height: headerGap),
+          Expanded(
+            child: ListView.builder(
+              physics: AlwaysScrollableScrollPhysics(),
+              itemCount: children.length,
+              itemBuilder: (context, index) {
+                return Padding(
+                  padding: EdgeInsets.only(bottom: childGap),
+                  child: children[index],
+                );
+              },
+            ),
+          ).modifier(listModifier??Modifier())
+        ],
+      ),
+    );
+  }
+}
+
+
+
+/**
+ * # Example
+ * ```dart
+ *  ElevatedButtonBuilder(
+ *   label: Text('Skip'.toUpperCase(),style: TextStyle(color: Colors.white, fontSize: 16))
+ *      .modifier(Modifier().padding(top: 12,bottom: 12)),
+ *  cornerRadius: 4, background: Color(0xFF5070FA)).build()
+ *
+ * ```
+ */
+class ElevatedButtonBuilder {
+  final Widget label;
+  VoidCallback _onPressed=(){};//null callback disable the button
+  OutlinedBorder? _shape;
+  final Modifier? modifier;
+  Color _background= Colors.blue;
+
+
+  ElevatedButtonBuilder({
+    this.modifier, required this.label,
+    Color? background,double cornerRadius=0.0
+  }){
+    if(background!=null)
+      _background=background;
+    if(cornerRadius!=0)
+      _shape=RoundedRectangleBorder(borderRadius: BorderRadius.circular(cornerRadius));
+
+  }
+
+  ElevatedButtonBuilder labelPadding(double padding) {
+    return this;
+  }
+
+  ElevatedButtonBuilder background(Color color) {
+    _background= color;
+    return this;
+  }
+  ElevatedButtonBuilder onClick(VoidCallback onPressed) {
+    _onPressed = onPressed;
+    return this;
+  }
+  ElevatedButtonBuilder roundAllCorner(double radius){
+    _shape= RoundedRectangleBorder(borderRadius: BorderRadius.circular(radius));
+    return this;
+  }
+
+
+
+  Widget build() {
+    return  ElevatedButton(
+        onPressed:_onPressed,
+        style: ElevatedButton.styleFrom(
+            backgroundColor:_background,
+            shape:_shape
+        ),
+        child:label);
+  }
+}
+
+typedef ValueTransformer = String Function(String);
+/**
+ * # Example
+ * ```dart
+ *  TextFieldBuilder(
+    modifier: Modifier().width(200),
+    textStyle: labelTextStyle,
+    controller: TextEditingController(),
+    visualTransformer: VisualTransformer.accountNumber,
+    onChanged: onAccountNumberChanged)
+ * ```
+ */
+// @formatter:off
+class TextFieldBuilder extends StatelessWidget {
+  final TextEditingController? controller;
+  final bool obscureText;
+  final ValueChanged<String>? onChanged;
+  final InputDecoration? decoration;
+  final TextCapitalization textCapitalization;
+  final TextInputType keyboardType;
+  final TextInputAction? textInputAction;
+  final ValueTransformer? visualTransformer;
+  final TextStyle textStyle;
+  final Modifier? modifier;
+
+  const TextFieldBuilder({
+    this.controller,
+    this.obscureText = false,
+    this.onChanged,
+    this.decoration,
+    this.textCapitalization = TextCapitalization.none,
+    this.keyboardType = TextInputType.text,
+    this.textInputAction,
+    this.visualTransformer,
+    this.textStyle = const TextStyle(fontSize: 16),
+    this.modifier,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    // Apply visual transformation initially
+    controller?.addListener(() {
+      final originalText = controller!.text.replaceAll(' ', '');
+      final transformedText = visualTransformer?.call(originalText) ?? originalText;
+
+      if (controller!.text != transformedText) {
+        controller!.value = TextEditingValue(
+          text: transformedText,
+          selection: TextSelection.collapsed(offset: transformedText.length),
+        );
+      }
+    });
+
+    return TextField(
+      controller: controller,
+      obscureText: obscureText,
+      decoration: decoration ??
+          InputDecoration(
+            isDense: true,
+            contentPadding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(20.0),
+            ),
+          ),
+      textCapitalization: textCapitalization,
+      keyboardType: keyboardType,
+      textInputAction: textInputAction,
+      style: textStyle,
+      onChanged: onChanged, // Trigger the external onChanged callback with raw text if needed
+    ).modifier(modifier??Modifier());
+  }
+}
+class VisualTransformer{
+  static String accountNumber(String input) {
+    // Remove any existing spaces and non-digit characters from the input
+    final cleanedInput = input.replaceAll(RegExp(r'\D'), '');
+
+    final buffer = StringBuffer();
+    for (int i = 0; i < cleanedInput.length; i++) {
+      if (i > 0 && i % 4 == 0) {
+        buffer.write(' ');
+      }
+      buffer.write(cleanedInput[i]);
+    }
+
+    return buffer.toString();
+  }
+
+}
+
+//@formatter:off
+class CustomTabBar extends StatelessWidget {
+  final List<String> timePeriods; final String selectedPeriod;
+  final ValueChanged<String> onPeriodSelected;final double borderRadius;
+  final Color selectedColor,unselectedColor,containerColor,borderColor;
+
+
+  CustomTabBar({required this.timePeriods, required this.selectedPeriod, required this.onPeriodSelected,
+    this.selectedColor = Colors.black, this.unselectedColor = const Color(0xFFF2F4F7),
+    this.containerColor =const Color(0xFFF2F4F7), this.borderColor = const Color(0xFFF2F4F7),
+    this.borderRadius = 12.0,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: _CustomTabBarContainer(
+        containerColor: containerColor,
+        borderColor: borderColor,
+        borderRadius: borderRadius,
+        child: Wrap(
+          spacing: 6,
+          children: timePeriods.map((period) {
+            return _TabItem(
+              period: period,
+              isSelected: selectedPeriod == period,
+              selectedColor: selectedColor,
+              unselectedColor: unselectedColor,
+              borderColor: borderColor,
+              borderRadius: borderRadius,
+              onTap: () => onPeriodSelected(period),
+            );
+          }).toList(),
+        ),
+      ),
+    );
+  }
+}
+
+//@formatter:off
+class _CustomTabBarContainer extends StatelessWidget {
+  final Widget child; final Color containerColor,borderColor; final double borderRadius;
+
+  _CustomTabBarContainer({required this.child, this.containerColor = const Color(0xFFF2F4F7),
+    this.borderColor = Colors.grey, this.borderRadius = 12.0,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(6),
+      decoration: BoxDecoration(
+        color: containerColor,
+        borderRadius: BorderRadius.circular(borderRadius),
+        border: Border.all(color: borderColor),
+      ),
+      child: child,
+    );
+  }
+}
+//@formatter:off
+class _TabItem extends StatelessWidget {
+  final String period; final bool isSelected;
+  final Color selectedColor,unselectedColor,borderColor;
+  final double borderRadius;final VoidCallback onTap;
+
+  _TabItem({required this.period, required this.isSelected, required this.selectedColor,
+    required this.unselectedColor, this.borderColor = const Color(0xFFF2F4F7), this.borderRadius = 8.0,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final backgroundColor = isSelected ? selectedColor : unselectedColor;
+    final textColor = backgroundColor.computeLuminance() > 0.5 ? Colors.black : Colors.white;
+
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+        decoration: BoxDecoration(
+          color: backgroundColor,
+          borderRadius: BorderRadius.circular(borderRadius),
+          border: Border.all(
+            color: isSelected ? selectedColor : borderColor,
+          ),
+        ),
+        child: Text(
+          period,
+          style: TextStyle(
+            color: textColor,
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+

@@ -18,13 +18,13 @@ class SearchScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
   return  Scaffold(
-        appBar: AppBar(
+        appBar: CustomTopBar(
           title: Text("Search",style: TextStyle(fontWeight: FontWeight.w500,fontSize: 16)),
             leading: IconButton(icon: Icon(Icons.arrow_back),onPressed: () {}),
         ),
         body:( ColumnBuilder(
             arrangement: Arrangement.spaceBy(8),
-            modifier:Modifier().scrollable().padding(left: 8, right: 8))
+            modifier:Modifier().padding(left: 8, right: 8).verticalScrollable())
 
         + StreamBuilderStrategyWithSnackBar<TabModel?>(
                 messageStream: controller.statusMessage,
@@ -90,60 +90,6 @@ class _SpendingNRecentProduct extends StatelessWidget {
   }
 }
 
-class RecentProduct extends StatelessWidget {
-  final List<Product> products;
-
-  const RecentProduct({
-    Key? key,
-    required this.products,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      constraints: BoxConstraints(maxWidth: 500),
-      child: Column(
-        children: [
-          Text("Recent Products",
-                  style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold))
-              .modifier(Modifier().align(Alignment.centerLeft)),
-          SizedBox(height: 16),
-          SizedBox(
-            height: 300,
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                // Slightly darker than white background
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    spreadRadius: 1,
-                    blurRadius: 5,
-                    offset: Offset(0, 4), // Shadow position
-                  ),
-                ],
-              ),
-              padding: const EdgeInsets.all(8),
-              height: 300,
-              // Set a constrained height for RecentProduct
-              child: ListView.builder(
-                shrinkWrap: true,
-                physics: AlwaysScrollableScrollPhysics(),
-                // Allows independent scrolling
-                itemCount: products.length,
-                itemBuilder: (context, index) {
-                  return ProductWidget(product: products[index]);
-                },
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 //@formatter:off
 class _SpendingSummary extends StatelessWidget {
   final String amountOfSpending, dueDateString;
@@ -186,6 +132,28 @@ final Widget labelSpending,dueDate,cost,action;
         + (RowBuilder()+labelSpending.modifier(Modifier().weight(1))+dueDate).build()
         + (RowBuilder()+cost.modifier(Modifier().weight(1))+action).build())
         .build();
+  }
+}
+
+class RecentProduct extends StatelessWidget {
+  final List<Product> products;
+
+  const RecentProduct({
+    Key? key,
+    required this.products,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return NestedVerticalScroller(
+      listModifier:Modifier()
+          .shadow(height: 300,backgroundColor: Colors.grey[200]!,radius: 12),
+      maxWidth:500,maxHeight: 300,
+      children: products.map((product) => ProductWidget(product: product)).toList(),
+      header: Text("Recent Products", style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold))
+          .modifier(Modifier().align(Alignment.centerLeft)),
+      childGap: 16,// Sets the maximum height for the scroller
+    );
   }
 }
 
@@ -458,103 +426,4 @@ class _LineChartPathPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
-//@formatter:off
-class CustomTabBar extends StatelessWidget {
-  final List<String> timePeriods; final String selectedPeriod;
-  final ValueChanged<String> onPeriodSelected;final double borderRadius;
-  final Color selectedColor,unselectedColor,containerColor,borderColor;
-
-
-  CustomTabBar({required this.timePeriods, required this.selectedPeriod, required this.onPeriodSelected,
-    this.selectedColor = Colors.black, this.unselectedColor = const Color(0xFFF2F4F7),
-    this.containerColor =const Color(0xFFF2F4F7), this.borderColor = const Color(0xFFF2F4F7),
-    this.borderRadius = 12.0,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: _CustomTabBarContainer(
-        containerColor: containerColor,
-        borderColor: borderColor,
-        borderRadius: borderRadius,
-        child: Wrap(
-          spacing: 6,
-          children: timePeriods.map((period) {
-            return _TabItem(
-              period: period,
-              isSelected: selectedPeriod == period,
-              selectedColor: selectedColor,
-              unselectedColor: unselectedColor,
-              borderColor: borderColor,
-              borderRadius: borderRadius,
-              onTap: () => onPeriodSelected(period),
-            );
-          }).toList(),
-        ),
-      ),
-    );
-  }
-}
-//@formatter:off
-class _CustomTabBarContainer extends StatelessWidget {
-  final Widget child; final Color containerColor,borderColor; final double borderRadius;
-
-  _CustomTabBarContainer({required this.child, this.containerColor = const Color(0xFFF2F4F7),
-    this.borderColor = Colors.grey, this.borderRadius = 12.0,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(6),
-      decoration: BoxDecoration(
-        color: containerColor,
-        borderRadius: BorderRadius.circular(borderRadius),
-        border: Border.all(color: borderColor),
-      ),
-      child: child,
-    );
-  }
-}
-//@formatter:off
-class _TabItem extends StatelessWidget {
-  final String period; final bool isSelected;
-  final Color selectedColor,unselectedColor,borderColor;
-  final double borderRadius;final VoidCallback onTap;
-
-  _TabItem({required this.period, required this.isSelected, required this.selectedColor,
-    required this.unselectedColor, this.borderColor = const Color(0xFFF2F4F7), this.borderRadius = 8.0,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final backgroundColor = isSelected ? selectedColor : unselectedColor;
-    final textColor = backgroundColor.computeLuminance() > 0.5 ? Colors.black : Colors.white;
-
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-        decoration: BoxDecoration(
-          color: backgroundColor,
-          borderRadius: BorderRadius.circular(borderRadius),
-          border: Border.all(
-            color: isSelected ? selectedColor : borderColor,
-          ),
-        ),
-        child: Text(
-          period,
-          style: TextStyle(
-            color: textColor,
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 
