@@ -1,7 +1,5 @@
 package com.khalekuzzaman.just.cse.task.data.repository
 
-import com.khalekuzzaman.just.cse.task.data.entity.ScheduleEntity
-import com.khalekuzzaman.just.cse.task.data.entity.SpendEntity
 import com.khalekuzzaman.just.cse.task.data.entity.SpendMapper
 import com.khalekuzzaman.just.cse.task.data.entity.SpendReportEntity
 import com.khalekuzzaman.just.cse.task.domain.SpendReportModel
@@ -9,6 +7,7 @@ import com.khalekuzzaman.just.cse.task.domain.model.BreakdownModel
 import com.khalekuzzaman.just.cse.task.domain.repository.SpendRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.Json
 
 class SpendRepositoryImpl : SpendRepository {
     private val demoBreakDownData = listOf(
@@ -20,22 +19,7 @@ class SpendRepositoryImpl : SpendRepository {
 
     override suspend fun getSpendReport(): SpendReportModel {
         return withContext(Dispatchers.IO) {
-            // Simulate fetching data from a data source
-            val spendReportEntity = SpendReportEntity(
-                period = "this_month",
-                currency = "$",
-                spend = SpendEntity(
-                    data = listOf(
-                        ScheduleEntity(
-                            firstSchedule = 400.00,
-                            secondSchedule = 600.00,
-                            thirdSchedule = 1200.00,
-                            fourthSchedule = 1800.00,
-                            fifthSchedule = 2600.00
-                        )
-                    )
-                )
-            )
+            val spendReportEntity = Json.decodeFromString<SpendReportEntity>(spendReportJsonData)
             SpendMapper.mapEntityToModel(spendReportEntity)
         }
     }
@@ -46,3 +30,20 @@ class SpendRepositoryImpl : SpendRepository {
         }
     }
 }
+const val spendReportJsonData = """
+{
+    "period": "this_month",
+    "currency": "$",
+    "spend": {
+        "data": [
+            {
+                "1st_schedule": 400.00,
+                "2nd_schedule": 600.00,
+                "3rd_schedule": 1200.00,
+                "4th_schedule": 1800.00,
+                "5th_schedule": 2600.00
+            }
+        ]
+    }
+}
+"""

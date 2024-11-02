@@ -2,6 +2,7 @@ package com.khalekuzzaman.just.cse.task
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.material3.Scaffold
 import com.khalekuzzaman.just.cse.task.ui.theme.DevsStreamTaskTheme
 
 class MainActivity : ComponentActivity() {
@@ -10,6 +11,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             DevsStreamTaskTheme {
                 RootNavHost()
+
             }
         }
     }
